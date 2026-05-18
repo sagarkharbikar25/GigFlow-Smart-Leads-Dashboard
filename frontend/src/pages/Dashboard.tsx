@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
@@ -30,13 +31,38 @@ export const Dashboard: React.FC = () => {
   const queryClient = useQueryClient();
 
   // ==========================================
-  // 🎛️ Filter & Pagination States
+  // 🎛️ Filter & Pagination States (URL Params)
   // ==========================================
-  const [search, setSearch] = useState('');
-  const [status, setStatus] = useState('');
-  const [source, setSource] = useState('');
-  const [sort, setSort] = useState('latest');
-  const [page, setPage] = useState(1);
+  const [searchParams, setSearchParams] = useSearchParams();
+
+  const search = searchParams.get('search') || '';
+  const status = searchParams.get('status') || '';
+  const source = searchParams.get('source') || '';
+  const sort = searchParams.get('sort') || 'latest';
+  const page = parseInt(searchParams.get('page') || '1', 10);
+
+  const updateFilter = (key: string, value: string) => {
+    setSearchParams((prev) => {
+      if (value) {
+        prev.set(key, value);
+      } else {
+        prev.delete(key);
+      }
+      return prev;
+    }, { replace: true });
+  };
+
+  const setSearch = (val: string) => updateFilter('search', val);
+  const setStatus = (val: string) => updateFilter('status', val);
+  const setSource = (val: string) => updateFilter('source', val);
+  const setSort = (val: string) => updateFilter('sort', val);
+  const setPage = (val: number | ((p: number) => number)) => {
+    setSearchParams((prev) => {
+      const newPage = typeof val === 'function' ? val(page) : val;
+      prev.set('page', newPage.toString());
+      return prev;
+    }, { replace: true });
+  };
 
   // Debounce search state (updates 400ms after user stops typing)
   const debouncedSearch = useDebounce(search, 400);

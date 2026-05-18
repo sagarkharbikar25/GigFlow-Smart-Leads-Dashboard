@@ -2,9 +2,17 @@
 @tailwind components;
 @tailwind utilities;
 
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
 @layer base {
   body {
-    @apply bg-brand-dark text-brand-text font-sans antialiased selection:bg-brand-primary/30 selection:text-white;
+    @apply bg-brand-dark text-brand-text font-sans antialiased selection:bg-brand-text selection:text-black;
+    background-color: #000000;
+    background-image: 
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59, 130, 246, 0.15), transparent),
+      radial-gradient(ellipse 80% 50% at 50% 120%, rgba(139, 92, 246, 0.15), transparent);
+    background-attachment: fixed;
+    min-height: 100vh;
   }
 }
 
@@ -12,38 +20,33 @@
    ✨ Custom Premium Animations & Transitions
    ========================================== */
 
-/* Subtle card entry animation */
 @keyframes fadeInUp {
-  from {
-    opacity: 0;
-    transform: translateY(12px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
+  from { opacity: 0; transform: translateY(16px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 .animate-fade-in {
-  animation: fadeInUp 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1) forwards;
 }
 
-/* Glassmorphism card utility */
+/* Glassmorphism Vercel-Style Panel */
 .glass-panel {
-  background: rgba(22, 29, 48, 0.7);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(31, 42, 69, 0.6);
+  background: rgba(10, 10, 10, 0.6);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.5);
 }
 
-/* Hover glow transitions */
+/* Premium Hover Transitions */
 .hover-glow {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .hover-glow:hover {
-  border-color: rgba(59, 130, 246, 0.5);
-  box-shadow: 0 0 20px 0 rgba(59, 130, 246, 0.15);
+  border-color: rgba(255, 255, 255, 0.2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.6), 0 0 0 1px rgba(255, 255, 255, 0.1) inset;
 }
 
 /* Premium Scrollbar Styling */
@@ -51,16 +54,13 @@
   width: 6px;
   height: 6px;
 }
-
 ::-webkit-scrollbar-track {
-  background: #0B0F19;
+  background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: #1F2A45;
+  background: rgba(255, 255, 255, 0.1);
   border-radius: 9999px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: #3B82F6;
+  background: rgba(255, 255, 255, 0.2);
 }

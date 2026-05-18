@@ -14,16 +14,23 @@ export const connectDB = async (): Promise<void> => {
     process.exit(1);
   }
 
-  try {
-    const conn = await mongoose.connect(mongoURI, {
-      autoIndex: true, // Auto-build indexes in development; highly convenient for new schemas
-    });
-
-    console.log(`🔌 MongoDB Connected Successfully: ${conn.connection.host}`);
-  } catch (error: any) {
-    console.error(`🔥 MongoDB Connection Failure: ${error.message}`);
-    process.exit(1);
+  let retries = 5;
+  while (retries > 0) {
+    try {
+      const conn = await mongoose.connect(mongoURI, {
+        autoIndex: true, // Auto-build indexes in development
+      });
+      console.log(`🔌 MongoDB Connected Successfully: ${conn.connection.host}`);
+      return; // Exit loop on success
+    } catch (error: any) {
+      console.error(`🔥 MongoDB Connection Failure: ${error.message}. Retrying... (${retries} attempts left)`);
+      retries -= 1;
+      await new Promise((res) => setTimeout(res, 5000)); // Wait 5 seconds before retrying
+    }
   }
+
+  console.error('🔥 MongoDB Connection Failed after 5 retries. Exiting...');
+  process.exit(1);
 };
 
 // Monitor connection events

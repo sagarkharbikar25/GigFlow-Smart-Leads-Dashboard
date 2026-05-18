@@ -1,7 +1,7 @@
 import axios from 'axios';
 
-// Detect production backend endpoint or fallback to localhost
-const API_BASE_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api/v1';
+// Use relative path so Vite proxy handles the connection to backend
+const API_BASE_URL = import.meta.env.VITE_API_URL || '/api/v1';
 
 /**
  * Custom Axios instance pointing to the GigFlow Express API

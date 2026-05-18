@@ -1,7 +1,8 @@
 import { Router } from 'express';
-import { register, login } from '../controllers/auth.controller';
+import { register, login, getMe } from '../controllers/auth.controller';
 import { validate } from '../middleware/validate.middleware';
 import { registerSchema, loginSchema } from '../validations/auth.validation';
+import { protect } from '../middleware/auth.middleware';
 
 const router = Router();
 
@@ -16,5 +17,11 @@ router.post('/register', validate(registerSchema), register);
  * Desc: Authenticate user & retrieve JWT token
  */
 router.post('/login', validate(loginSchema), login);
+
+/**
+ * Route: GET /api/v1/auth/me
+ * Desc: Returns current authenticated user
+ */
+router.get('/me', protect, getMe);
 
 export default router;

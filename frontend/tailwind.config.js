@@ -4,42 +4,38 @@ export default {
     "./index.html",
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
-  darkMode: 'class', // Enables toggleable Dark Mode support!
+  darkMode: 'class',
   theme: {
     extend: {
       colors: {
-        // Sleek dashboard background colors
         brand: {
-          dark: '#0B0F19',       // Deep rich obsidian space blue
-          surface: '#161D30',    // Muted dark card surface
-          border: '#1F2A45',     // Sleek subtle border accent
-          text: '#F3F4F6',       // Vibrant light text
-          muted: '#9CA3AF',      // Balanced readable subtitle gray
+          dark: '#000000',       // Vercel pitch black background
+          surface: '#0A0A0A',    // Extremely subtle card background
+          border: '#27272A',     // Very fine zinc-800 border
+          text: '#FAFAFA',       // Crisp white
+          muted: '#A1A1AA',      // Zinc-400 for secondary text
           
-          // Action colors (gradients look amazing with these)
-          primary: '#3B82F6',    // Electric Blue
-          secondary: '#8B5CF6',  // Vivid Royal Violet
-          accent: '#06B6D4',     // Hyper Cyan
+          primary: '#FFFFFF',    // White for primary actions
+          secondary: '#3B82F6',  // Blue for accents
+          accent: '#8B5CF6',     // Violet for special highlights
           
-          // Status-badge specific colors (elegant HSL look rather than generic primary colors)
-          success: '#10B981',    // Emerald Green
-          warning: '#F59E0B',    // Amber Yellow
-          danger: '#EF4444',     // Coral Red
-          info: '#3B82F6',       // Sky Blue
+          success: '#10B981',    
+          warning: '#F59E0B',    
+          danger: '#EF4444',     
+          info: '#3B82F6',       
         }
       },
       fontFamily: {
-        sans: ['Inter', 'sans-serif'], // Premium font configuration
+        sans: ['Inter', 'sans-serif'], 
+        mono: ['JetBrains Mono', 'monospace'], // For numbers/metrics
       },
       boxShadow: {
-        // Modern soft shadow styles
-        'premium': '0 4px 20px -2px rgba(0, 0, 0, 0.3)',
-        'glow-primary': '0 0 15px 0px rgba(59, 130, 246, 0.4)',
-        'glow-secondary': '0 0 15px 0px rgba(139, 92, 246, 0.4)',
-        'glass': '0 8px 32px 0 rgba(31, 38, 135, 0.37)',
+        'premium': '0 0 0 1px rgba(255,255,255,0.05), 0 4px 20px -2px rgba(0,0,0,0.5)',
+        'glow-primary': '0 0 20px 0px rgba(255, 255, 255, 0.15)',
+        'glow-secondary': '0 0 20px 0px rgba(59, 130, 246, 0.2)',
       },
-      backdropBlur: {
-        'xs': '2px',
+      backgroundImage: {
+        'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
       }
     },
   },
