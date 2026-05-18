@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  # ==========================================
+  # 🍃 MongoDB Local Database Service
+  # ==========================================
+  mongodb:
+    image: mongo:6.0
+    container_name: gigflow_db
+    ports:
+      - '27017:27017'
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - gigflow_network
+    restart: unless-stopped
+
+  # ==========================================
+  # 🔌 Express TypeScript API Server
+  # ==========================================
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gigflow_api
+    ports:
+      - '5000:5000'
+    environment:
+      - PORT=5000
+      - NODE_ENV=production
+      - MONGO_URI=mongodb://mongodb:27017/gigflow
+      - JWT_SECRET=gigflow_enterprise_super_secret_encryption_key_2026
+      - JWT_EXPIRES_IN=7d
+      - CORS_ORIGIN=http://localhost
+    depends_on:
+      - mongodb
+    networks:
+      - gigflow_network
+    restart: unless-stopped
+
+  # ==========================================
+  # 🕸️ React Vite Nginx Frontend Web Server
+  # ==========================================
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gigflow_client
+    ports:
+      - '80:80'
+    environment:
+      - VITE_API_URL=http://localhost:5000/api/v1
+    depends_on:
+      - backend
+    networks:
+      - gigflow_network
+    restart: unless-stopped
+
+# Network bridge to allow containers to find each other by name
+networks:
+  gigflow_network:
+    driver: bridge
+
+# Persistent Database Volumes so data remains saved even when containers stop!
+volumes:
+  mongodb_data:
+    driver: local
