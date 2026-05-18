@@ -20,7 +20,7 @@ interface IMongoError {
  * Returns full stack traces and error details for painless debugging.
  */
 const sendErrorDev = (err: IMongoError, res: Response): void => {
-  return res.status(err.statusCode || 500).json({
+  res.status(err.statusCode || 500).json({
     status: err.status || 'error',
     message: err.message,
     error: err,
@@ -35,15 +35,16 @@ const sendErrorDev = (err: IMongoError, res: Response): void => {
 const sendErrorProd = (err: IMongoError, res: Response): void => {
   // Operational, trusted error: send clean message to client
   if (err.isOperational) {
-    return res.status(err.statusCode).json({
+    res.status(err.statusCode || 500).json({
       status: err.status,
       message: err.message,
     });
+    return;
   }
 
   // Programming or unknown error (e.g. library bug, Mongo connection lost): don't leak details
   console.error('🔥 ERROR: ', err);
-  return res.status(500).json({
+  res.status(500).json({
     status: 'error',
     message: 'Something went wrong on our end. Please try again later.',
   });
@@ -100,7 +101,7 @@ export const globalErrorHandler = (
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else {
-    const error: IMongoError = { ...err, message: err.message };
+    let error: IMongoError = { ...err, message: err.message };
     
     // Mongoose/MongoDB common error handlers
     if (err.name === 'CastError') error = handleCastErrorDB(error);
