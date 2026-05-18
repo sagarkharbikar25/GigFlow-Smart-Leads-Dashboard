@@ -14,7 +14,7 @@ interface GetLeadsParams {
 /**
  * Service: Create Lead
  */
-export const createLead = async (data: any, userId: string): Promise<ILeadDocument> => {
+export const createLead = async (data: Partial<ILeadDocument>, userId: string): Promise<ILeadDocument> => {
   const newLead = await Lead.create({
     ...data,
     createdBy: userId,
@@ -71,7 +71,7 @@ export const getLeads = async (params: GetLeadsParams) => {
   const stats = { new: 0, contacted: 0, qualified: 0, lost: 0, total: 0 };
   statsArray.forEach((item: { _id: string; count: number }) => {
     if (item._id in stats) {
-      (stats as any)[item._id] = item.count;
+      (stats as Record<string, number>)[item._id] = item.count;
     }
   });
   stats.total = stats.new + stats.contacted + stats.qualified + stats.lost;
@@ -121,14 +121,14 @@ export const exportLeadsCSV = async (params: GetLeadsParams): Promise<string> =>
   }
 
   const headers = ['Lead Name,Email Address,Status,Acquisition Source,Created At,Territory Owner'];
-  const rows = leads.map((lead: any) => {
+  const rows = leads.map((lead: ILeadDocument) => {
     return [
       `"${lead.name.replace(/"/g, '""')}"`,
       `"${lead.email}"`,
       lead.status.toUpperCase(),
       lead.source.toUpperCase(),
       new Date(lead.createdAt).toLocaleDateString(),
-      `"${lead.createdBy?.name || 'Unassigned'}"`,
+      `"${(lead.createdBy as unknown as { name?: string })?.name || 'Unassigned'}"`,
     ].join(',');
   });
 
@@ -156,7 +156,7 @@ export const getLeadById = async (leadId: string): Promise<ILeadDocument> => {
  */
 export const updateLead = async (
   leadId: string,
-  updateData: any,
+  updateData: Partial<ILeadDocument>,
   user: { id: string; role: string }
 ): Promise<ILeadDocument> => {
   if (!mongoose.Types.ObjectId.isValid(leadId)) {

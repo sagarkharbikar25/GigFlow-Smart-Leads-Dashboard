@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { getLeads, createLead, updateLead, deleteLead, exportLeadsCSV } from '../api/leads';
-import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useDebounce } from '../hooks/useDebounce';
 import { ILead } from '../types';
@@ -107,7 +106,7 @@ export const Dashboard: React.FC = () => {
 
   // Mutation: Create or Edit Lead Record
   const leadMutation = useMutation({
-    mutationFn: async (values: any) => {
+    mutationFn: async (values: Partial<ILead>) => {
       if (activeLead) {
         return await updateLead(activeLead._id, values);
       } else {
@@ -173,7 +172,7 @@ export const Dashboard: React.FC = () => {
   };
 
   // Modal Submit (Form Callback)
-  const handleModalSubmit = async (values: any) => {
+  const handleModalSubmit = async (values: Partial<ILead>) => {
     await leadMutation.mutateAsync(values);
   };
 

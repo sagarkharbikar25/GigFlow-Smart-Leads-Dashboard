@@ -4,7 +4,6 @@ import {
   Inbox,
   PhoneCall,
   CheckCircle,
-  TrendingUp,
   Percent,
 } from 'lucide-react';
 

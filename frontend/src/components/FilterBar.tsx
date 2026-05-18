@@ -1,6 +1,5 @@
 import React from 'react';
-import { Search, Download, RefreshCw, SlidersHorizontal } from 'lucide-react';
-import { LeadStatus, LeadSource } from '../types';
+import { Search, Download, RefreshCw } from 'lucide-react';
 
 interface IFilterBarProps {
   search: string;

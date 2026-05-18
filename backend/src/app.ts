@@ -78,7 +78,7 @@ const server = app.listen(PORT, () => {
 });
 
 // Handle unhandled promise rejections (e.g., failed DB connection during runtime)
-process.on('unhandledRejection', (err: any) => {
+process.on('unhandledRejection', (err: Error) => {
   console.error('🔥 UNHANDLED REJECTION! Shutting down server gracefully...');
   console.error(err.name, err.message);
   server.close(() => {
@@ -87,7 +87,7 @@ process.on('unhandledRejection', (err: any) => {
 });
 
 // Handle uncaught exceptions
-process.on('uncaughtException', (err: any) => {
+process.on('uncaughtException', (err: Error) => {
   console.error('🔥 UNCAUGHT EXCEPTION! Shutting down server immediately...');
   console.error(err.name, err.message);
   process.exit(1);

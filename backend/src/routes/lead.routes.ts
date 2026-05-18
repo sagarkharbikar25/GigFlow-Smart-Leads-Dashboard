@@ -2,6 +2,7 @@ import { Router } from 'express';
 import {
   createLead,
   getAllLeads,
+  exportLeads,
   getLead,
   updateLead,
   deleteLead,

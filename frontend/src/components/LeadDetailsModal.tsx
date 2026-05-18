@@ -1,6 +1,6 @@
 import React from 'react';
 import { ILead } from '../types';
-import { X, Calendar, User, Mail, Tag, Compass, ShieldAlert } from 'lucide-react';
+import { X, Calendar, Mail } from 'lucide-react';
 
 interface ILeadDetailsModalProps {
   isOpen: boolean;

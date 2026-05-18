@@ -55,3 +55,30 @@ export interface IApiResponseEnvelope<T> {
   metadata?: IPaginationMetadata;
   data: T;
 }
+
+// Paginated response shorthand (used by leads.ts service)
+export interface PaginatedResponse<T> {
+  status: string;
+  results?: number;
+  metadata?: IPaginationMetadata;
+  data: {
+    leads: T[];
+    stats: {
+      new: number;
+      contacted: number;
+      qualified: number;
+      lost: number;
+      total: number;
+    };
+  };
+}
+
+// Lead filter/query params interface
+export interface LeadFilters {
+  search?: string;
+  status?: string;
+  source?: string;
+  sort?: string;
+  page?: number;
+  limit?: number;
+}

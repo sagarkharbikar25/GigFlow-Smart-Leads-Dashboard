@@ -1,11 +1,25 @@
 import { Request, Response, NextFunction } from 'express';
 import { AppError } from '../utils/AppError';
 
+interface IMongoError {
+  statusCode?: number;
+  status?: string;
+  message: string;
+  isOperational?: boolean;
+  path?: string;
+  value?: string;
+  errmsg?: string;
+  code?: number;
+  name?: string;
+  errors?: Record<string, { message: string }>;
+  stack?: string;
+}
+
 /**
  * Handles Express development errors.
  * Returns full stack traces and error details for painless debugging.
  */
-const sendErrorDev = (err: AppError | any, res: Response) => {
+const sendErrorDev = (err: IMongoError, res: Response): void => {
   return res.status(err.statusCode || 500).json({
     status: err.status || 'error',
     message: err.message,
@@ -18,7 +32,7 @@ const sendErrorDev = (err: AppError | any, res: Response) => {
  * Handles Express production errors.
  * Masks sensitive system errors and prints operational, user-friendly errors.
  */
-const sendErrorProd = (err: AppError | any, res: Response) => {
+const sendErrorProd = (err: IMongoError, res: Response): void => {
   // Operational, trusted error: send clean message to client
   if (err.isOperational) {
     return res.status(err.statusCode).json({
@@ -38,7 +52,7 @@ const sendErrorProd = (err: AppError | any, res: Response) => {
 /**
  * Handle Mongoose CastError (e.g., invalid ObjectId format)
  */
-const handleCastErrorDB = (err: any) => {
+const handleCastErrorDB = (err: IMongoError): AppError => {
   const message = `Invalid ${err.path}: ${err.value}.`;
   return new AppError(message, 400);
 };
@@ -46,8 +60,8 @@ const handleCastErrorDB = (err: any) => {
 /**
  * Handle Mongoose Duplicate Key Error (e.g., email registered twice)
  */
-const handleDuplicateFieldsDB = (err: any) => {
-  const value = err.errmsg.match(/(["'])(\\?.)*?\1/)?.[0] || 'Unknown field';
+const handleDuplicateFieldsDB = (err: IMongoError): AppError => {
+  const value = err.errmsg?.match(/(["'])(\\?.)*?\1/)?.[0] || 'Unknown field';
   const message = `Duplicate field value: ${value}. Please use another value!`;
   return new AppError(message, 400);
 };
@@ -55,8 +69,8 @@ const handleDuplicateFieldsDB = (err: any) => {
 /**
  * Handle Mongoose ValidationError
  */
-const handleValidationErrorDB = (err: any) => {
-  const errors = Object.values(err.errors).map((el: any) => el.message);
+const handleValidationErrorDB = (err: IMongoError): AppError => {
+  const errors = Object.values(err.errors ?? {}).map((el: { message: string }) => el.message);
   const message = `Invalid input data: ${errors.join('. ')}`;
   return new AppError(message, 400);
 };
@@ -75,8 +89,8 @@ const handleJWTExpiredError = () => new AppError('Your session has expired. Plea
  * Main Express Global Error Handling Middleware
  */
 export const globalErrorHandler = (
-  err: any,
-  req: Request,
+  err: IMongoError,
+  _req: Request,
   res: Response,
   next: NextFunction
 ) => {
@@ -86,7 +100,7 @@ export const globalErrorHandler = (
   if (process.env.NODE_ENV === 'development') {
     sendErrorDev(err, res);
   } else {
-    let error = { ...err, message: err.message };
+    const error: IMongoError = { ...err, message: err.message };
     
     // Mongoose/MongoDB common error handlers
     if (err.name === 'CastError') error = handleCastErrorDB(error);

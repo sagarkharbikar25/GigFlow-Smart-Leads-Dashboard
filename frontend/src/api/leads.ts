@@ -6,12 +6,12 @@ export const getLeads = async (filters: LeadFilters): Promise<PaginatedResponse<
   return response.data;
 };
 
-export const createLead = async (data: any): Promise<ILead> => {
+export const createLead = async (data: Partial<ILead>): Promise<ILead> => {
   const response = await api.post('/leads', data);
   return response.data.data.lead;
 };
 
-export const updateLead = async (id: string, data: any): Promise<ILead> => {
+export const updateLead = async (id: string, data: Partial<ILead>): Promise<ILead> => {
   const response = await api.put(`/leads/${id}`, data);
   return response.data.data.lead;
 };

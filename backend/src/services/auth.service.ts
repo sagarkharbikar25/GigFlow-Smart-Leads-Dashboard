@@ -1,7 +1,19 @@
 import jwt from 'jsonwebtoken';
 import { User, IUserDocument } from '../models/User';
 import { AppError } from '../utils/AppError';
-import { IUserPayload } from '../types';
+import { IUserPayload, UserRole } from '../types';
+
+export interface IRegisterDTO {
+  name: string;
+  email: string;
+  password: string;
+  role?: UserRole;
+}
+
+export interface ILoginDTO {
+  email: string;
+  password: string;
+}
 
 /**
  * Sign a JSON Web Token for the user id
@@ -11,15 +23,15 @@ const signToken = (id: string): string => {
   if (!secret) {
     throw new AppError('Server configuration issue: JWT Secret is missing.', 500);
   }
-  return jwt.sign({ id }, secret, {
+  return jwt.sign({ id }, secret as jwt.Secret, {
     expiresIn: process.env.JWT_EXPIRES_IN || '7d',
-  });
+  } as jwt.SignOptions);
 };
 
 /**
  * Service to register a new user
  */
-export const registerUser = async (data: any): Promise<{ token: string; user: IUserPayload }> => {
+export const registerUser = async (data: IRegisterDTO): Promise<{ token: string; user: IUserPayload }> => {
   const { name, email, password, role } = data;
 
   // Double check if email already exists
@@ -45,7 +57,7 @@ export const registerUser = async (data: any): Promise<{ token: string; user: IU
       id: newUser._id.toString(),
       name: newUser.name,
       email: newUser.email,
-      role: newUser.role as any,
+      role: newUser.role as UserRole,
     },
   };
 };
@@ -53,7 +65,7 @@ export const registerUser = async (data: any): Promise<{ token: string; user: IU
 /**
  * Service to login a user
  */
-export const loginUser = async (data: any): Promise<{ token: string; user: IUserPayload }> => {
+export const loginUser = async (data: ILoginDTO): Promise<{ token: string; user: IUserPayload }> => {
   const { email, password } = data;
 
   // Retrieve the user and explicitly request the password field
@@ -77,7 +89,7 @@ export const loginUser = async (data: any): Promise<{ token: string; user: IUser
       id: user._id.toString(),
       name: user.name,
       email: user.email,
-      role: user.role as any,
+      role: user.role as UserRole,
     },
   };
 };
@@ -95,6 +107,6 @@ export const getMe = async (userId: string): Promise<IUserPayload> => {
     id: user._id.toString(),
     name: user.name,
     email: user.email,
-    role: user.role as any,
+    role: user.role as UserRole,
   };
 };

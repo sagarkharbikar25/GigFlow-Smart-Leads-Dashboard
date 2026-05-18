@@ -6,7 +6,6 @@ import {
   LogOut,
   Menu,
   X,
-  User as UserIcon,
   Shield,
   Briefcase,
   ChevronRight,
