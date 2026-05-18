@@ -52,6 +52,26 @@ export const getAllLeads = catchAsync(
 );
 
 /**
+ * 📥 Export Leads as CSV
+ */
+export const exportLeads = catchAsync(
+  async (req: Request, res: Response, next: NextFunction): Promise<void> => {
+    const params = {
+      status: req.query.status as string,
+      source: req.query.source as string,
+      search: req.query.search as string,
+      sort: req.query.sort as string,
+    };
+
+    const csvData = await leadService.exportLeadsCSV(params);
+
+    res.setHeader('Content-Type', 'text/csv');
+    res.setHeader('Content-Disposition', 'attachment; filename="leads_export.csv"');
+    res.status(200).send(csvData);
+  }
+);
+
+/**
  * 🔍 Retrieve Single Lead Details
  */
 export const getLead = catchAsync(

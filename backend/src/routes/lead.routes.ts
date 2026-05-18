@@ -31,6 +31,12 @@ router.post('/', validate(createLeadSchema), createLead);
 router.get('/', getAllLeads);
 
 /**
+ * Route: GET /api/v1/leads/export
+ * Desc: Export leads to CSV stream based on filters (Allowed for: admin, sales)
+ */
+router.get('/export', exportLeads);
+
+/**
  * Route: GET /api/v1/leads/:id
  * Desc: Retrieve details of a single lead (Allowed for: admin, sales)
  */

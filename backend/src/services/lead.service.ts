@@ -94,6 +94,48 @@ export const getLeads = async (params: GetLeadsParams) => {
 };
 
 /**
+ * Service: Export Leads to CSV
+ */
+export const exportLeadsCSV = async (params: GetLeadsParams): Promise<string> => {
+  const { status, source, search, sort } = params;
+
+  const queryObj: FilterQuery<ILeadDocument> = {};
+  if (status) queryObj.status = status;
+  if (source) queryObj.source = source;
+  if (search) {
+    queryObj.$or = [
+      { name: { $regex: search, $options: 'i' } },
+      { email: { $regex: search, $options: 'i' } },
+    ];
+  }
+
+  let sortBy = '-createdAt';
+  if (sort === 'oldest') sortBy = 'createdAt';
+
+  const leads = await Lead.find(queryObj)
+    .populate('createdBy', 'name')
+    .sort(sortBy);
+
+  if (leads.length === 0) {
+    throw new AppError('No leads found matching current filters.', 404);
+  }
+
+  const headers = ['Lead Name,Email Address,Status,Acquisition Source,Created At,Territory Owner'];
+  const rows = leads.map((lead: any) => {
+    return [
+      `"${lead.name.replace(/"/g, '""')}"`,
+      `"${lead.email}"`,
+      lead.status.toUpperCase(),
+      lead.source.toUpperCase(),
+      new Date(lead.createdAt).toLocaleDateString(),
+      `"${lead.createdBy?.name || 'Unassigned'}"`,
+    ].join(',');
+  });
+
+  return [...headers, ...rows].join('\n');
+};
+
+/**
  * Service: Get Single Lead
  */
 export const getLeadById = async (leadId: string): Promise<ILeadDocument> => {

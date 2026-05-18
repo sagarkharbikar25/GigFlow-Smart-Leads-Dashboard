@@ -1,10 +1,11 @@
 import React, { useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { getLeads, createLead, updateLead, deleteLead, exportLeadsCSV } from '../api/leads';
 import { api } from '../api';
 import { useAuth } from '../context/AuthContext';
 import { useDebounce } from '../hooks/useDebounce';
-import { ILead, IApiResponseEnvelope } from '../types';
+import { ILead } from '../types';
 
 // Subcomponents import
 import StatsCards from '../components/StatsCards';
@@ -14,17 +15,6 @@ import LeadModal from '../components/LeadModal';
 import LeadDetailsModal from '../components/LeadDetailsModal';
 
 import { Plus, ChevronLeft, ChevronRight, AlertOctagon, Inbox, RefreshCw } from 'lucide-react';
-
-interface ILeadsFetchResponse {
-  leads: ILead[];
-  stats: {
-    new: number;
-    contacted: number;
-    qualified: number;
-    lost: number;
-    total: number;
-  };
-}
 
 export const Dashboard: React.FC = () => {
   const { user: currentUser } = useAuth();
@@ -87,29 +77,23 @@ export const Dashboard: React.FC = () => {
     isError,
     error,
     refetch,
-  } = useQuery<IApiResponseEnvelope<ILeadsFetchResponse>>({
+  } = useQuery({
     queryKey: ['leads', debouncedSearch, status, source, sort, page],
-    queryFn: async () => {
-      // Re-route back to page 1 if query changes to avoid paging bounds overflow
-      const response = await api.get('/leads', {
-        params: {
-          search: debouncedSearch,
-          status,
-          source,
-          sort,
-          page,
-          limit: 10,
-        },
-      });
-      return response.data;
-    },
+    queryFn: () => getLeads({
+      search: debouncedSearch,
+      status,
+      source,
+      sort,
+      page,
+      limit: 10,
+    }),
   });
 
   // Extract variables safely from standard response envelope
-  const leads = responseEnvelope?.data.leads || [];
+  const leads = (responseEnvelope?.data as any)?.leads || [];
   const metadata = responseEnvelope?.metadata;
   
-  const stats = responseEnvelope?.data.stats || {
+  const stats = (responseEnvelope?.data as any)?.stats || {
     new: 0,
     contacted: 0,
     qualified: 0,
@@ -125,17 +109,12 @@ export const Dashboard: React.FC = () => {
   const leadMutation = useMutation({
     mutationFn: async (values: any) => {
       if (activeLead) {
-        // Edit Mode
-        const res = await api.put(`/leads/${activeLead._id}`, values);
-        return res.data;
+        return await updateLead(activeLead._id, values);
       } else {
-        // Create Mode
-        const res = await api.post('/leads', values);
-        return res.data;
+        return await createLead(values);
       }
     },
     onSuccess: () => {
-      // Invalidate leads query cache to trigger background data refresh
       queryClient.invalidateQueries({ queryKey: ['leads'] });
       setModalOpen(false);
     },
@@ -144,8 +123,7 @@ export const Dashboard: React.FC = () => {
   // Mutation: Delete Lead Record (Admin Only)
   const deleteMutation = useMutation({
     mutationFn: async (leadId: string) => {
-      const res = await api.delete(`/leads/${leadId}`);
-      return res.data;
+      await deleteLead(leadId);
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['leads'] });
@@ -203,49 +181,14 @@ export const Dashboard: React.FC = () => {
   const handleExportCSV = async () => {
     setIsExporting(true);
     try {
-      // Query ALL leads matching active filters (bypass limit/page)
-      const res = await api.get('/leads', {
-        params: {
-          search: debouncedSearch,
-          status,
-          source,
-          sort,
-          limit: 10000, // Safe high limit
-        },
+      await exportLeadsCSV({
+        search: debouncedSearch,
+        status,
+        source,
+        sort,
       });
-
-      const exportLeads = res.data.data.leads as ILead[];
-
-      if (exportLeads.length === 0) {
-        alert('No leads available to export matching active filters.');
-        return;
-      }
-
-      // Compile CSV content
-      const headers = ['Lead Name', 'Email Address', 'Status', 'Acquisition Source', 'Created At', 'Territory Owner'];
-      const rows = exportLeads.map((lead) => [
-        `"${lead.name.replace(/"/g, '""')}"`,
-        `"${lead.email}"`,
-        lead.status.toUpperCase(),
-        lead.source.toUpperCase(),
-        new Date(lead.createdAt).toLocaleDateString(),
-        `"${lead.createdBy?.name || 'Unassigned'}"`,
-      ]);
-
-      const csvContent = 
-        'data:text/csv;charset=utf-8,\uFEFF' + 
-        [headers.join(','), ...rows.map(e => e.join(','))].join('\n');
-      
-      const encodedUri = encodeURI(csvContent);
-      const link = document.createElement('a');
-      link.setAttribute('href', encodedUri);
-      link.setAttribute('download', `gigflow_leads_export_${new Date().toISOString().split('T')[0]}.csv`);
-      
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
     } catch (err: any) {
-      alert('Failed to compile CSV leads stream.');
+      alert('Failed to download CSV leads stream.');
     } finally {
       setIsExporting(false);
     }
