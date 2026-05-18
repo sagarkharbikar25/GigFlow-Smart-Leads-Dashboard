@@ -23,10 +23,12 @@ connectDB();
 // ==========================================
 
 // 1. CORS Configuration
-const corsOrigin = process.env.CORS_ORIGIN || 'http://localhost:5173';
 app.use(
   cors({
-    origin: corsOrigin,
+    origin: (origin, callback) => {
+      // Echo the request origin to allow all domains with credentials: true
+      callback(null, true);
+    },
     credentials: true,
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'PATCH', 'OPTIONS'],
     allowedHeaders: ['Content-Type', 'Authorization'],
