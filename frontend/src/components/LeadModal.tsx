@@ -176,28 +176,26 @@ export const LeadModal: React.FC<ILeadModalProps> = ({
             </div>
           </div>
 
-          {/* Status Field (Only visible or editable in EDIT mode to prevent setting weird status during creation) */}
-          {isEditMode && (
-            <div>
-              <label className="block text-sm font-semibold text-brand-muted mb-2">Sales Stage Status</label>
-              <div className="relative">
-                <select
-                  className="w-full px-4 py-3 bg-brand-dark/50 border border-brand-border rounded-xl text-white focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary appearance-none cursor-pointer transition-all"
-                  {...register('status')}
-                >
-                  <option value="new" className="bg-brand-surface">🆕 New Lead</option>
-                  <option value="contacted" className="bg-brand-surface">📞 In Contact</option>
-                  <option value="qualified" className="bg-brand-surface">💎 Qualified</option>
-                  <option value="lost" className="bg-brand-surface">❌ Lost</option>
-                </select>
-                <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted">
-                  <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
-                    <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
-                  </svg>
-                </div>
+          {/* Status Field (Always visible so users can specify status during creation or modification) */}
+          <div>
+            <label className="block text-sm font-semibold text-brand-muted mb-2">Sales Stage Status</label>
+            <div className="relative">
+              <select
+                className="w-full px-4 py-3 bg-brand-dark/50 border border-brand-border rounded-xl text-white focus:outline-none focus:border-brand-primary focus:ring-1 focus:ring-brand-primary appearance-none cursor-pointer transition-all"
+                {...register('status')}
+              >
+                <option value="new" className="bg-brand-surface">🆕 New Lead</option>
+                <option value="contacted" className="bg-brand-surface">📞 In Contact</option>
+                <option value="qualified" className="bg-brand-surface">💎 Qualified</option>
+                <option value="lost" className="bg-brand-surface">❌ Lost</option>
+              </select>
+              <div className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-brand-muted">
+                <svg className="fill-current h-4 w-4" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20">
+                  <path d="M9.293 12.95l.707.707L15.657 8l-1.414-1.414L10 10.828 5.757 6.586 4.343 8z" />
+                </svg>
               </div>
             </div>
-          )}
+          </div>
 
           {/* Submit Action */}
           <div className="flex space-x-3 pt-4 border-t border-brand-border/60">
